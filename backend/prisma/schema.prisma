@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("Member")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedProjects Project[] @relation("ProjectMembers")
+  documents        Document[]
+  submissions      Submission[]
+  activityLogs     ActivityLog[]
+  notifications    Notification[]
+}
+
+model Project {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  purpose         String   @default("")
+  status          String   @default("Active")
+  deadline        DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  assignedMembers User[]   @relation("ProjectMembers")
+  documents       Document[]
+  submissions     Submission[]
+  activityLogs    ActivityLog[]
+  notifications   Notification[]
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String   @default("")
+  description String   @default("")
+  fileName    String
+  fileUrl     String
+  fileType    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+}
+
+model Submission {
+  id            String   @id @default(uuid())
+  progress      Int      @default(0)
+  notes         String?
+  attachedFiles Json     @default("[]")
+  status        String   @default("Pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  memberId      String
+  member        User     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
