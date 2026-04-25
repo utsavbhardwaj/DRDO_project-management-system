@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { sendReportSubmissionEmail } = require('../services/mailService');
 
 const formatSubmission = (sub) => ({
   ...sub,
@@ -33,6 +34,15 @@ const createSubmission = async (req, res) => {
       await prisma.activityLog.create({
         data: { action: `Updated submission for project`, userId: req.user._id, projectId }
       });
+      
+      const project = await prisma.project.findUnique({ where: { id: projectId } });
+      if (project) {
+        const admins = await prisma.user.findMany({ where: { role: 'Admin' } });
+        for (const admin of admins) {
+          await sendReportSubmissionEmail(project, admin).catch(console.error);
+        }
+      }
+
       return res.json(formatSubmission(updatedSubmission));
     }
 
@@ -50,6 +60,14 @@ const createSubmission = async (req, res) => {
     await prisma.activityLog.create({
       data: { action: `Created submission for project`, userId: req.user._id, projectId }
     });
+
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (project) {
+      const admins = await prisma.user.findMany({ where: { role: 'Admin' } });
+      for (const admin of admins) {
+        await sendReportSubmissionEmail(project, admin).catch(console.error);
+      }
+    }
 
     res.status(201).json(formatSubmission(submission));
   } catch (error) {

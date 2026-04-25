@@ -19,6 +19,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
   const [docDesc, setDocDesc] = useState("");
   const [uploading, setUploading] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [pinging, setPinging] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("qrams_token");
@@ -90,6 +91,46 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
         fetchProject(token);
       }
     } catch (e) {} finally { setAssigning(false); }
+  };
+
+  const handlePingMember = async (memberId, memberName) => {
+    setPinging(memberId);
+    const token = getToken();
+    try {
+      const r = await fetch(`http://localhost:5005/api/projects/${id}/ping`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ managerId: memberId })
+      });
+      if (r.ok) {
+        alert(`✅ Reminder email sent to ${memberName}!`);
+      } else {
+        const data = await r.json();
+        alert(`❌ Failed: ${data.message || "Could not send email"}`);
+      }
+    } catch (e) {
+      alert("❌ Network error. Is the backend running?");
+    } finally { setPinging(null); }
+  };
+
+  const handleRemoveMember = async (memberId, memberName) => {
+    if (!confirm(`Remove ${memberName} from this project?`)) return;
+    const token = getToken();
+    try {
+      const r = await fetch(`http://localhost:5005/api/projects/${id}/remove-member`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ memberId })
+      });
+      if (r.ok) {
+        fetchProject(token);
+      } else {
+        const data = await r.json();
+        alert(`❌ Failed: ${data.message || "Could not remove member"}`);
+      }
+    } catch (e) {
+      alert("❌ Network error.");
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -190,7 +231,23 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
                         <p className="text-xs text-gray-500">{m.email}</p>
                       </div>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">Assigned</span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handlePingMember(m._id, m.name)}
+                        disabled={pinging === m._id}
+                        className="text-[11px] bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-2.5 py-1 rounded-full font-semibold transition-colors disabled:opacity-50"
+                        title={`Send reminder email to ${m.name}`}
+                      >
+                        {pinging === m._id ? "Sending..." : "Ping 📧"}
+                      </button>
+                      <button
+                        onClick={() => handleRemoveMember(m._id, m.name)}
+                        className="text-[11px] bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 rounded-full font-semibold transition-colors"
+                        title={`Remove ${m.name} from project`}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

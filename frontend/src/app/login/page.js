@@ -9,11 +9,16 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setNeedsVerification(false);
+    setResendMessage("");
     try {
       const res = await fetch("http://localhost:5005/api/auth/login", {
         method: "POST",
@@ -28,11 +33,33 @@ export default function Login() {
         else router.push("/member/dashboard");
       } else {
         setError(data.message || "Login failed");
+        // Detect verification error
+        if (data.message && data.message.toLowerCase().includes("verify your email")) {
+          setNeedsVerification(true);
+        }
       }
     } catch (err) {
       setError("Server error. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    setResendMessage("");
+    try {
+      const res = await fetch("http://localhost:5005/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      setResendMessage(data.message);
+    } catch (err) {
+      setResendMessage("Failed to resend. Please try again.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -44,8 +71,24 @@ export default function Login() {
         </h2>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">
             {error}
+          </div>
+        )}
+
+        {needsVerification && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-yellow-800 font-medium mb-2">Your email is not verified yet.</p>
+            <button
+              onClick={handleResendVerification}
+              disabled={resendLoading}
+              className="text-sm bg-yellow-200 hover:bg-yellow-300 text-yellow-900 font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {resendLoading ? "Sending..." : "📧 Resend Verification Email"}
+            </button>
+            {resendMessage && (
+              <p className="text-xs text-yellow-700 mt-2">{resendMessage}</p>
+            )}
           </div>
         )}
 
@@ -84,12 +127,6 @@ export default function Login() {
           >
             {loading ? "Signing In..." : "Login"}
           </button>
-
-          {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
-            <p className="text-xs text-blue-700 text-center font-medium">
-              Default Admin: <span className="font-bold bg-blue-100 px-1.5 py-0.5 rounded">admin</span> / <span className="font-bold bg-blue-100 px-1.5 py-0.5 rounded">123</span>
-            </p>
-          </div> */}
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">
@@ -102,3 +139,4 @@ export default function Login() {
     </div>
   );
 }
+

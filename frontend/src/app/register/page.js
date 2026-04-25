@@ -9,6 +9,7 @@ export default function Register() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "Member" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,10 +23,8 @@ export default function Register() {
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("qrams_token", data.token);
-        localStorage.setItem("qrams_user", JSON.stringify(data));
-        if (data.role === "Admin") router.push("/admin/dashboard");
-        else router.push("/member/dashboard");
+        // Don't auto-login — show verification message instead
+        setSuccess(true);
       } else {
         setError(data.message || "Registration failed");
       }
@@ -35,6 +34,30 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-lg p-10 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-[#003366] mb-3">Check Your Email</h2>
+          <p className="text-sm text-gray-600 mb-2">
+            A verification link has been sent to <strong className="text-gray-800">{formData.email}</strong>
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            Please click the link in your email to verify your account before logging in. Also check your spam folder.
+          </p>
+          <Link href="/login" className="inline-block bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex items-center justify-center py-12 px-4">

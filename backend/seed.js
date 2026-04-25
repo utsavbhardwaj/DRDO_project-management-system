@@ -12,7 +12,8 @@ const seedAdmin = async () => {
           name: 'Administrator',
           email: 'admin',
           password: hashedPassword,
-          role: 'Admin'
+          role: 'Admin',
+          isVerified: true
         }
       });
       console.log('✅ Default admin created (username: admin, password: 123)');

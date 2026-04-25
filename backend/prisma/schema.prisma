@@ -7,14 +7,29 @@ datasource db {
   url       = env("DATABASE_URL")
 }
 
+model PendingRegistration {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  password          String
+  role              String   @default("Member")
+  verificationToken String   @unique
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("Member")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  name                   String
+  email                  String   @unique
+  password               String
+  role                   String   @default("Member")
+  isVerified             Boolean  @default(false)
+  verificationToken      String?
+  resetPasswordToken     String?
+  resetPasswordExpiresAt DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   assignedProjects Project[] @relation("ProjectMembers")
   documents        Document[]

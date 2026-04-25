@@ -74,9 +74,14 @@ export default function AdminDashboard() {
       {/* Title bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <h2 className="text-2xl font-bold text-[#003366]">Admin Dashboard</h2>
-        <button onClick={() => setIsModalOpen(true)}
-          className="bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
-        >+ Create Project</button>
+        <div className="flex gap-3">
+          <button onClick={() => router.push("/admin/contributors")}
+            className="bg-white hover:bg-gray-50 text-[#2a5494] font-semibold px-5 py-2.5 rounded-lg shadow-md border border-[#2a5494] hover:shadow-lg transition-all text-sm"
+          >👥 View Contributors</button>
+          <button onClick={() => setIsModalOpen(true)}
+            className="bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
+          >+ Create Project</button>
+        </div>
       </div>
 
       {/* Stats */}

@@ -140,6 +140,39 @@ const addMembers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const removeMember = async (req, res) => {
+  try {
+    const { memberId } = req.body;
+    if (!memberId) {
+      return res.status(400).json({ message: 'memberId is required' });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: { assignedMembers: { select: { id: true } } }
+    });
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const existingIds = project.assignedMembers.map(m => m.id);
+    if (!existingIds.includes(memberId)) {
+      return res.status(400).json({ message: 'Member is not assigned to this project' });
+    }
+
+    const updatedIds = existingIds.filter(id => id !== memberId);
+
+    const updated = await prisma.project.update({
+      where: { id: req.params.id },
+      data: { assignedMembers: { set: updatedIds.map(id => ({ id })) } },
+      include: { assignedMembers: { select: { id: true, name: true, email: true } } }
+    });
+
+    res.json(formatProject(updated));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const deleteProject = async (req, res) => {
   try {
     const project = await prisma.project.findUnique({ where: { id: req.params.id } });
@@ -159,4 +192,26 @@ const deleteProject = async (req, res) => {
   }
 };
 
-module.exports = { getProjects, getProjectById, createProject, updateProject, addMembers, deleteProject };
+const { sendProjectPingEmail } = require('../services/mailService');
+
+const pingManager = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { managerId } = req.body;
+
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const manager = await prisma.user.findUnique({ where: { id: managerId } });
+    if (!manager) return res.status(404).json({ message: 'Manager not found' });
+
+    await sendProjectPingEmail(project, manager);
+
+    res.json({ message: 'Ping sent successfully to manager' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getProjects, getProjectById, createProject, updateProject, addMembers, removeMember, deleteProject, pingManager };
+
