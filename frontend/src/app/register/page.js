@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function Register() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function Register() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5005/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

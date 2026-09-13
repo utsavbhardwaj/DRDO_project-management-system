@@ -197,7 +197,7 @@ const { sendProjectPingEmail } = require('../services/mailService');
 const pingManager = async (req, res) => {
   try {
     const { id } = req.params;
-    const { managerId } = req.body;
+    const { managerId, remarks } = req.body;
 
     const project = await prisma.project.findUnique({ where: { id } });
     if (!project) return res.status(404).json({ message: 'Project not found' });
@@ -205,7 +205,7 @@ const pingManager = async (req, res) => {
     const manager = await prisma.user.findUnique({ where: { id: managerId } });
     if (!manager) return res.status(404).json({ message: 'Manager not found' });
 
-    await sendProjectPingEmail(project, manager);
+    await sendProjectPingEmail(project, manager, remarks);
 
     res.json({ message: 'Ping sent successfully to manager' });
   } catch (error) {

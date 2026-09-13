@@ -31,11 +31,15 @@ model User {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
-  assignedProjects Project[] @relation("ProjectMembers")
-  documents        Document[]
-  submissions      Submission[]
-  activityLogs     ActivityLog[]
-  notifications    Notification[]
+  assignedProjects     Project[]            @relation("ProjectMembers")
+  documents            Document[]
+  submissions          Submission[]
+  activityLogs         ActivityLog[]
+  notifications        Notification[]
+  qualityObjectives    QualityObjective[]
+  opportunityRegisters OpportunityRegister[]
+  fracasReports        FracasReport[]
+  riskAssessments      RiskAssessment[]
 }
 
 model Project {
@@ -48,11 +52,15 @@ model Project {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  assignedMembers User[]   @relation("ProjectMembers")
-  documents       Document[]
-  submissions     Submission[]
-  activityLogs    ActivityLog[]
-  notifications   Notification[]
+  assignedMembers      User[]                @relation("ProjectMembers")
+  documents            Document[]
+  submissions          Submission[]
+  activityLogs         ActivityLog[]
+  notifications        Notification[]
+  qualityObjectives    QualityObjective[]
+  opportunityRegisters OpportunityRegister[]
+  fracasReports        FracasReport[]
+  riskAssessments      RiskAssessment[]
 }
 
 model Document {
@@ -112,4 +120,92 @@ model Notification {
 
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model QualityObjective {
+  id              String   @id @default(uuid())
+  detailsActivity String
+  target          String
+  status          String   @default("Pending")
+  remarks         String   @default("")
+  signatureDate   String   @default("")
+  responsibility  String   @default("")
+  adminRemarks    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projectId       String
+  project         Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  submittedById   String?
+  submittedBy     User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+}
+
+model OpportunityRegister {
+  id                 String   @id @default(uuid())
+  opNo               String
+  process            String
+  opportunity        String
+  potentialBenefit   String   @default("")
+  implementationPlan String   @default("")
+  remarks            String   @default("")
+  adminRemarks       String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  projectId         String
+  project           Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  submittedById     String?
+  submittedBy       User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+}
+
+model FracasReport {
+  id                    String   @id @default(uuid())
+  noLabYear             String   @default("")
+  dateTimeFailure       String   @default("")
+  projectName           String   @default("")
+  typeOfProject         String   @default("")
+  nomenclature          String   @default("")
+  serialNo              String   @default("")
+  componentManufacturer String   @default("")
+  failureDescription    String   @default("")
+  failureReported       String   @default("")
+  defectObserved        String   @default("")
+  statusAnalysis        String   @default("")
+  typeOfFailure         String   @default("Minor")
+  adminRemarks          String   @default("")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  projectId     String
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  submittedById String?
+  submittedBy   User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+}
+
+model RiskAssessment {
+  id               String   @id @default(uuid())
+  riskNo           String
+  processTitle     String   @default("")
+  processOwner     String   @default("")
+  riskDescription  String   @default("")
+  consequences     String   @default("")
+  likelihoodRating Int      @default(1)
+  impactRating     Int      @default(1)
+  riskRating       Int      @default(1)
+  riskSignificance String   @default("Low")
+  dealingOfficer   String   @default("")
+  deptFunction     String   @default("")
+  date             String   @default("")
+  adminRemarks     String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  projectId     String
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  submittedById String?
+  submittedBy   User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
 }

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/utils/api';
 
 export default function Header() {
   const [user, setUser] = useState(null);
@@ -32,7 +33,7 @@ export default function Header() {
     const token = localStorage.getItem('qrams_token');
     if (!token) return;
     try {
-      const res = await fetch('http://localhost:5005/api/notifications', {
+      const res = await fetch(`${API_BASE_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setNotifications(await res.json());
@@ -42,7 +43,7 @@ export default function Header() {
   const markRead = async (id) => {
     const token = localStorage.getItem('qrams_token');
     try {
-      await fetch(`http://localhost:5005/api/notifications/${id}/read`, {
+      await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
         method: 'PUT', headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
@@ -52,7 +53,7 @@ export default function Header() {
   const markAllRead = async () => {
     const token = localStorage.getItem('qrams_token');
     try {
-      await fetch('http://localhost:5005/api/notifications/mark-all-read', {
+      await fetch(`${API_BASE_URL}/api/notifications/mark-all-read`, {
         method: 'PUT', headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));

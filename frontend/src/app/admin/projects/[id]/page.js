@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function AdminProjectDetails({ params: paramsPromise }) {
   const { id } = use(paramsPromise);
@@ -20,6 +21,8 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
   const [uploading, setUploading] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [pinging, setPinging] = useState(null);
+  const [activePingMember, setActivePingMember] = useState(null);
+  const [pingRemarks, setPingRemarks] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("qrams_token");
@@ -38,7 +41,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
 
   const fetchProject = async (t) => {
     try {
-      const r = await fetch(`http://localhost:5005/api/projects/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/projects/${id}`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) {
         setProject(await r.json());
         setError("");
@@ -52,19 +55,19 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
   };
   const fetchMembers = async (t) => {
     try {
-      const r = await fetch("http://localhost:5005/api/auth/members", { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/auth/members`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) setAllMembers(await r.json());
     } catch (e) {}
   };
   const fetchDocuments = async (t) => {
     try {
-      const r = await fetch(`http://localhost:5005/api/documents/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/documents/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) setDocuments(await r.json());
     } catch (e) {}
   };
   const fetchSubmissions = async (t) => {
     try {
-      const r = await fetch(`http://localhost:5005/api/submissions/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/submissions/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) setSubmissions(await r.json());
     } catch (e) {}
   };
@@ -80,7 +83,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
     setAssigning(true);
     const token = getToken();
     try {
-      const r = await fetch(`http://localhost:5005/api/projects/${id}/add-members`, {
+      const r = await fetch(`${API_BASE_URL}/api/projects/${id}/add-members`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ memberIds: selectedMemberIds })
@@ -93,23 +96,27 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
     } catch (e) {} finally { setAssigning(false); }
   };
 
-  const handlePingMember = async (memberId, memberName) => {
+  const handlePingMember = async () => {
+    if (!activePingMember) return;
+    const { id: memberId, name: memberName } = activePingMember;
     setPinging(memberId);
     const token = getToken();
     try {
-      const r = await fetch(`http://localhost:5005/api/projects/${id}/ping`, {
+      const r = await fetch(`${API_BASE_URL}/api/projects/${id}/ping`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ managerId: memberId })
+        body: JSON.stringify({ managerId: memberId, remarks: pingRemarks })
       });
       if (r.ok) {
-        alert(`✅ Reminder email sent to ${memberName}!`);
+        alert(`Reminder email sent to ${memberName}.`);
+        setActivePingMember(null);
+        setPingRemarks("");
       } else {
         const data = await r.json();
-        alert(`❌ Failed: ${data.message || "Could not send email"}`);
+        alert(`Failed: ${data.message || "Could not send email"}`);
       }
     } catch (e) {
-      alert("❌ Network error. Is the backend running?");
+      alert("Network error. Is the backend running?");
     } finally { setPinging(null); }
   };
 
@@ -117,7 +124,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
     if (!confirm(`Remove ${memberName} from this project?`)) return;
     const token = getToken();
     try {
-      const r = await fetch(`http://localhost:5005/api/projects/${id}/remove-member`, {
+      const r = await fetch(`${API_BASE_URL}/api/projects/${id}/remove-member`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ memberId })
@@ -126,10 +133,10 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
         fetchProject(token);
       } else {
         const data = await r.json();
-        alert(`❌ Failed: ${data.message || "Could not remove member"}`);
+        alert(`Failed: ${data.message || "Could not remove member"}`);
       }
     } catch (e) {
-      alert("❌ Network error.");
+      alert("Network error.");
     }
   };
 
@@ -144,7 +151,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
     fd.append("title", docTitle || file.name);
     fd.append("description", docDesc);
     try {
-      const r = await fetch("http://localhost:5005/api/documents", {
+      const r = await fetch(`${API_BASE_URL}/api/documents`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: fd
@@ -162,7 +169,9 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
     return (
       <div className="max-w-2xl mx-auto py-16 px-6 text-center">
         <div className="bg-white rounded-lg shadow-md border border-red-200 p-8">
-          <div className="text-4xl mb-3">⚠️</div>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
           <h2 className="text-xl font-bold text-red-600 mb-2">{error || "Project not found"}</h2>
           <p className="text-sm text-gray-500 mb-6">The project may have been deleted, or the ID is invalid.</p>
           <button onClick={() => router.push("/admin/dashboard")} className="bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-6 py-2.5 rounded-lg shadow">
@@ -203,12 +212,25 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
           </div>
           <span className={`ml-4 flex-shrink-0 text-xs font-bold px-3 py-1 rounded-full ${project.status === "Active" ? "bg-green-100 text-green-700" : project.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>{project.status}</span>
         </div>
-        <div className="flex gap-4 mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-          <span>Created: {new Date(project.createdAt).toLocaleDateString("en-IN")}</span>
-          {project.deadline && <span>Deadline: {new Date(project.deadline).toLocaleDateString("en-IN")}</span>}
-          <span>Members: {project.assignedMembers.length}</span>
+        <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-100 items-center justify-between">
+          <div className="flex gap-4 text-xs text-gray-400">
+            <span>Created: {new Date(project.createdAt).toLocaleDateString("en-IN")}</span>
+            {project.deadline && <span>Deadline: {new Date(project.deadline).toLocaleDateString("en-IN")}</span>}
+            <span>Members: {project.assignedMembers.length}</span>
+          </div>
+          {/* Quality Formats Button */}
+          <button
+            onClick={() => router.push(`/admin/quality/${id}`)}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#003366] to-[#0077cc] hover:from-[#002244] hover:to-[#005fa3] text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Quality Formats (DRDO)
+          </button>
         </div>
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Team Members + Assign */}
@@ -233,12 +255,15 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => handlePingMember(m._id, m.name)}
+                        onClick={() => {
+                          setActivePingMember({ id: m._id, name: m.name });
+                          setPingRemarks("");
+                        }}
                         disabled={pinging === m._id}
                         className="text-[11px] bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-2.5 py-1 rounded-full font-semibold transition-colors disabled:opacity-50"
                         title={`Send reminder email to ${m.name}`}
                       >
-                        {pinging === m._id ? "Sending..." : "Ping 📧"}
+                        {pinging === m._id ? "Sending..." : "Ping"}
                       </button>
                       <button
                         onClick={() => handleRemoveMember(m._id, m.name)}
@@ -299,7 +324,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
               <input type="file" onChange={e => setFile(e.target.files[0])} required
                 className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
               <button type="submit" disabled={!file || uploading} className="w-full bg-[#2a5494] hover:bg-[#1e3f72] text-white text-sm font-semibold py-2 rounded-lg shadow disabled:opacity-50">
-                {uploading ? "Uploading & Notifying..." : "📤 Upload & Notify Members"}
+                {uploading ? "Uploading & Notifying..." : "Upload & Notify Members"}
               </button>
             </form>
             <div className="space-y-3">
@@ -311,7 +336,7 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
                       {d.description && <p className="text-xs text-gray-500 mt-0.5">{d.description}</p>}
                       <p className="text-xs text-gray-400 mt-1">Uploaded: {new Date(d.createdAt).toLocaleString("en-IN")}</p>
                     </div>
-                    <a href={`http://localhost:5005${d.fileUrl}`} target="_blank" className="text-xs text-[#2a5494] font-semibold hover:underline ml-3 mt-1">Download ↓</a>
+                    <a href={`${API_BASE_URL}${d.fileUrl}`} target="_blank" className="text-xs text-[#2a5494] font-semibold hover:underline ml-3 mt-1">Download ↓</a>
                   </div>
                 </div>
               ))}
@@ -353,6 +378,66 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
           </div>
         </div>
       </div>
+
+      {activePingMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden transform scale-100 transition-transform">
+            <div className="bg-[#003366] text-white px-6 py-4 flex justify-between items-center">
+              <h3 className="font-bold text-base flex items-center gap-2">
+                <span>Send Ping Reminder</span>
+              </h3>
+              <button 
+                onClick={() => setActivePingMember(null)}
+                className="text-white/80 hover:text-white transition-colors text-lg"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                You are sending a report reminder to <span className="font-semibold text-gray-800">{activePingMember.name}</span>. You can optionally add any specific remarks or instructions below:
+              </p>
+              <div className="mb-5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1.5">Remarks / Message (Optional)</label>
+                <textarea 
+                  rows={4} 
+                  placeholder="e.g. Please submit the outstanding Q4 report by Friday..." 
+                  value={pingRemarks} 
+                  onChange={e => setPingRemarks(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none placeholder:text-gray-400 text-gray-800"
+                />
+              </div>
+              <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setActivePingMember(null)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePingMember}
+                  disabled={pinging === activePingMember.id}
+                  className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 text-white rounded-lg text-sm font-semibold shadow-md transition-colors flex items-center justify-center min-w-[110px]"
+                >
+                  {pinging === activePingMember.id ? (
+                    <span className="flex items-center gap-1.5">
+                      <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send Ping"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,15 +40,36 @@ export default function Home() {
           {/* Feature bullets */}
           <div className="space-y-3 text-left max-w-xs mx-auto">
             {[
-              { icon: "📋", text: "Manage Projects & Audits" },
-              { icon: "👥", text: "Collaborate with Teams" },
-              { icon: "📤", text: "Upload & Track Reports" },
+              {
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                ),
+                text: "Manage Projects & Audits"
+              },
+              {
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ),
+                text: "Collaborate with Teams"
+              },
+              {
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                ),
+                text: "Upload & Track Reports"
+              }
             ].map((item, i) => (
               <div
                 key={i}
                 className={`animate-fade-in-up delay-${(i + 3) * 100} flex items-center gap-3 bg-white/[0.07] backdrop-blur-sm rounded-lg px-4 py-3 border border-white/10`}
               >
-                <span className="text-lg">{item.icon}</span>
+                <div className="flex-shrink-0">{item.icon}</div>
                 <span className="text-white/90 text-sm font-medium">{item.text}</span>
               </div>
             ))}

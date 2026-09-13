@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function MemberProjectDetails({ params: paramsPromise }) {
   const { id } = use(paramsPromise);
@@ -24,7 +25,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
 
   const fetchProject = async (t) => {
     try {
-      const r = await fetch(`http://localhost:5005/api/projects/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/projects/${id}`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) {
         setProject(await r.json());
         setError("");
@@ -38,7 +39,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
   };
   const fetchDocuments = async (t) => {
     try {
-      const r = await fetch(`http://localhost:5005/api/documents/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+      const r = await fetch(`${API_BASE_URL}/api/documents/project/${id}`, { headers: { Authorization: `Bearer ${t}` } });
       if (r.ok) setDocuments(await r.json());
     } catch (e) {}
   };
@@ -47,7 +48,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
     e.preventDefault(); setSubmitting(true); setSuccess(false);
     const token = localStorage.getItem("qrams_token");
     try {
-      const r = await fetch("http://localhost:5005/api/submissions", {
+      const r = await fetch(`${API_BASE_URL}/api/submissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ projectId: id, progress: Number(progress), notes })
@@ -62,7 +63,9 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
     return (
       <div className="max-w-2xl mx-auto py-16 px-6 text-center">
         <div className="bg-white rounded-lg shadow-md border border-red-200 p-8">
-          <div className="text-4xl mb-3">⚠️</div>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
           <h2 className="text-xl font-bold text-red-600 mb-2">{error || "Project not found"}</h2>
           <p className="text-sm text-gray-500 mb-6">The project may have been deleted, or the ID is invalid.</p>
           <button onClick={() => router.push("/member/dashboard")} className="bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-6 py-2.5 rounded-lg shadow">
@@ -91,10 +94,22 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
             <p className="text-sm text-gray-700">{project.purpose}</p>
           </div>
         )}
-        <div className="flex gap-4 mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-          <span className={`font-bold px-3 py-1 rounded-full ${project.status === "Active" ? "bg-green-100 text-green-700" : project.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>{project.status}</span>
-          <span className="flex items-center">Created: {new Date(project.createdAt).toLocaleDateString("en-IN")}</span>
-          {project.deadline && <span className="flex items-center">Deadline: {new Date(project.deadline).toLocaleDateString("en-IN")}</span>}
+        <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-100 items-center justify-between">
+          <div className="flex gap-4 text-xs text-gray-400">
+            <span className={`font-bold px-3 py-1 rounded-full ${project.status === "Active" ? "bg-green-100 text-green-700" : project.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>{project.status}</span>
+            <span className="flex items-center">Created: {new Date(project.createdAt).toLocaleDateString("en-IN")}</span>
+            {project.deadline && <span className="flex items-center">Deadline: {new Date(project.deadline).toLocaleDateString("en-IN")}</span>}
+          </div>
+          {/* Quality Formats Button */}
+          <button
+            onClick={() => router.push(`/member/quality/${id}`)}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#003366] to-[#0077cc] hover:from-[#002244] hover:to-[#005fa3] text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Quality Formats (DRDO)
+          </button>
         </div>
       </div>
 
@@ -134,7 +149,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
                     {d.description && <p className="text-xs text-gray-500 mt-0.5">{d.description}</p>}
                     <p className="text-xs text-gray-400 mt-1">Uploaded: {new Date(d.createdAt).toLocaleString("en-IN")}</p>
                   </div>
-                  <a href={`http://localhost:5005${d.fileUrl}`} target="_blank" className="text-xs text-[#2a5494] font-semibold hover:underline ml-3 mt-1">Download ↓</a>
+                  <a href={`${API_BASE_URL}${d.fileUrl}`} target="_blank" className="text-xs text-[#2a5494] font-semibold hover:underline ml-3 mt-1">Download ↓</a>
                 </div>
               </div>
             ))}
@@ -147,7 +162,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
           <form onSubmit={handleSubmission} className="p-6 space-y-5">
             {success && (
               <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 font-medium">
-                ✅ Progress updated successfully!
+                Progress updated successfully!
               </div>
             )}
             <div>

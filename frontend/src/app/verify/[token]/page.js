@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function VerifyEmail({ params: paramsPromise }) {
   const { token } = use(paramsPromise);
@@ -11,7 +12,7 @@ export default function VerifyEmail({ params: paramsPromise }) {
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await fetch(`http://localhost:5005/api/auth/verify/${token}`);
+        const res = await fetch(`${API_BASE_URL}/api/auth/verify/${token}`);
         const data = await res.json();
         if (res.ok) {
           setStatus("success");

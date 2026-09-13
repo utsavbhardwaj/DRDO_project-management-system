@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function Login() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function Login() {
     setNeedsVerification(false);
     setResendMessage("");
     try {
-      const res = await fetch("http://localhost:5005/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -49,7 +50,7 @@ export default function Login() {
     setResendLoading(true);
     setResendMessage("");
     try {
-      const res = await fetch("http://localhost:5005/api/auth/resend-verification", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -84,7 +85,7 @@ export default function Login() {
               disabled={resendLoading}
               className="text-sm bg-yellow-200 hover:bg-yellow-300 text-yellow-900 font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
             >
-              {resendLoading ? "Sending..." : "📧 Resend Verification Email"}
+              {resendLoading ? "Sending..." : "Resend Verification Email"}
             </button>
             {resendMessage && (
               <p className="text-xs text-yellow-700 mt-2">{resendMessage}</p>
@@ -107,9 +108,17 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-2">
-              Password:
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-semibold text-gray-600">
+                Password:
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-[#2a5494] hover:underline font-medium"
+              >
+                Forgot Password?
+              </Link>
+            </div>
             <input
               type="password"
               required

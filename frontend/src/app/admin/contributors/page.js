@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function ContributorsPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function ContributorsPage() {
   const fetchContributors = async (token) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5005/api/auth/all-users", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/all-users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -42,7 +43,7 @@ export default function ContributorsPage() {
     setDeleting(true);
     const token = localStorage.getItem("qrams_token");
     try {
-      const res = await fetch(`http://localhost:5005/api/auth/users/${deleteTarget._id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/users/${deleteTarget._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -51,10 +52,10 @@ export default function ContributorsPage() {
         fetchContributors(token);
       } else {
         const data = await res.json();
-        alert(`❌ ${data.message || "Failed to delete user"}`);
+        alert(`Failed to delete user: ${data.message || "Please check server logs"}`);
       }
     } catch (e) {
-      alert("❌ Network error.");
+      alert("Network error.");
     } finally {
       setDeleting(false);
     }
@@ -138,7 +139,9 @@ export default function ContributorsPage() {
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="text-center py-16 text-gray-400">
-                      <div className="text-4xl mb-3">👥</div>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
                       <p className="font-medium">No contributors found</p>
                       <p className="text-xs mt-1">
                         {search ? "Try a different search term." : "No members have registered yet."}
@@ -172,7 +175,7 @@ export default function ContributorsPage() {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                            ⏳ Pending
+                            Pending
                           </span>
                         )}
                       </td>
@@ -261,7 +264,7 @@ export default function ContributorsPage() {
               <p className="text-xs text-gray-400 mb-1">{deleteTarget.email}</p>
               {deleteTarget.assignedProjects?.length > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5 mb-4 mt-3 text-left">
-                  <p className="text-xs text-yellow-800 font-semibold mb-1">⚠️ This member is assigned to {deleteTarget.assignedProjects.length} project(s):</p>
+                  <p className="text-xs text-yellow-800 font-semibold mb-1">This member is assigned to {deleteTarget.assignedProjects.length} project(s):</p>
                   <ul className="text-xs text-yellow-700 list-disc list-inside">
                     {deleteTarget.assignedProjects.map(p => <li key={p.id}>{p.title}</li>)}
                   </ul>

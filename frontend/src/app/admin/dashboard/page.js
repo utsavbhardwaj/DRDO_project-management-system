@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function AdminDashboard() {
 
   const fetchProjects = async (token) => {
     try {
-      const res = await fetch("http://localhost:5005/api/projects", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE_URL}/api/projects`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setProjects(await res.json());
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     const token = localStorage.getItem("qrams_token");
     try {
-      const res = await fetch("http://localhost:5005/api/projects", {
+      const res = await fetch(`${API_BASE_URL}/api/projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(newProject),
@@ -47,7 +48,7 @@ export default function AdminDashboard() {
     setDeleting(true);
     const token = localStorage.getItem("qrams_token");
     try {
-      const res = await fetch(`http://localhost:5005/api/projects/${deleteTarget._id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${deleteTarget._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
         <div className="flex gap-3">
           <button onClick={() => router.push("/admin/contributors")}
             className="bg-white hover:bg-gray-50 text-[#2a5494] font-semibold px-5 py-2.5 rounded-lg shadow-md border border-[#2a5494] hover:shadow-lg transition-all text-sm"
-          >👥 View Contributors</button>
+          >View Contributors</button>
           <button onClick={() => setIsModalOpen(true)}
             className="bg-[#2a5494] hover:bg-[#1e3f72] text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
           >+ Create Project</button>

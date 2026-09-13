@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { API_BASE_URL } from "@/utils/api";
 
 export default function MemberDashboard() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function MemberDashboard() {
 
   const fetchProjects = async (token) => {
     try {
-      const res = await fetch("http://localhost:5005/api/projects", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE_URL}/api/projects`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setProjects(await res.json());
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -39,7 +40,9 @@ export default function MemberDashboard() {
       {/* Feature 4: If not assigned to any project */}
       {projects.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md border border-gray-200 py-20 text-center">
-          <div className="text-5xl mb-4">📋</div>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
           <h3 className="text-xl font-bold text-gray-600 mb-2">You are not assigned to any project yet</h3>
           <p className="text-sm text-gray-400">Please contact your administrator to get assigned to a project.</p>
         </div>

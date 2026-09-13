@@ -25,6 +25,7 @@ app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/documents', require('./routes/documentRoutes'));
 app.use('/api/submissions', require('./routes/submissionRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/quality', require('./routes/qualityRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {
