@@ -339,7 +339,7 @@ export default function FracasPage({ params: paramsPromise }) {
       )}
 
       <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-3 flex justify-between text-xs text-gray-500">
-        <span>APPROVED BY: &nbsp;&nbsp; Dr. Meena Mishra, Director SSPL</span>
+        <span>APPROVED BY: &nbsp;&nbsp;</span>
         <span>ISSUED BY: &nbsp;&nbsp; Dr. R. S. Saxena, Head QMS & MR</span>
       </div>
     </div>
