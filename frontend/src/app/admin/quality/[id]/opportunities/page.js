@@ -18,6 +18,13 @@ export default function OpportunityRegisterPage({ params: paramsPromise }) {
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
+  // Editable header dates — persisted in localStorage per project
+  const DATES_KEY = `sqrmt_dates_${projectId}`;
+  const [issueDate, setIssueDate] = useState("01.01.2024");
+  const [revDate, setRevDate]     = useState("30.04.2025");
+  const [showDateEdit, setShowDateEdit] = useState(false);
+  const [tempIssueDate, setTempIssueDate] = useState("");
+  const [tempRevDate, setTempRevDate]     = useState("");
 
   const getToken = () => localStorage.getItem("sqrmt_token");
 
@@ -25,9 +32,26 @@ export default function OpportunityRegisterPage({ params: paramsPromise }) {
     const token = getToken();
     const user = JSON.parse(localStorage.getItem("sqrmt_user") || "{}");
     if (!token || user?.role !== "Admin") { router.push("/login"); return; }
+    // Load saved dates for this project
+    try {
+      const saved = JSON.parse(localStorage.getItem(DATES_KEY)) || {};
+      if (saved.issueDate) setIssueDate(saved.issueDate);
+      if (saved.revDate)   setRevDate(saved.revDate);
+    } catch {}
     fetchProject(token);
     fetchItems(token);
   }, [projectId]);
+
+  const openDateEdit = () => { setTempIssueDate(issueDate); setTempRevDate(revDate); setShowDateEdit(true); };
+  const saveDates = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DATES_KEY)) || {};
+      localStorage.setItem(DATES_KEY, JSON.stringify({ ...saved, issueDate: tempIssueDate, revDate: tempRevDate }));
+    } catch {}
+    setIssueDate(tempIssueDate);
+    setRevDate(tempRevDate);
+    setShowDateEdit(false);
+  };
 
   const fetchProject = async (t) => {
     try {
@@ -89,8 +113,23 @@ export default function OpportunityRegisterPage({ params: paramsPromise }) {
               <p className="text-blue-200 text-sm mt-0.5">Doc No: QF/QPG/OPP &nbsp;|&nbsp; IR Materials and Devices Activity</p>
             </div>
             <div className="text-right text-xs text-blue-200 space-y-0.5">
-              <p>Issue No.: 01 &nbsp;|&nbsp; Issue Date: 01.01.2024</p>
-              <p>Rev. No.: 01 &nbsp;|&nbsp; Rev. Date: 30.04.2025</p>
+              <div className="flex items-center justify-end gap-2">
+
+                <div className="space-y-0.5 text-right">
+
+                  <p>Issue No.: 01 &nbsp;|&nbsp; Issue Date: {issueDate}</p>
+
+                  <p>Rev. No.: 01 &nbsp;|&nbsp; Rev. Date: {revDate}</p>
+
+                </div>
+
+                <button onClick={openDateEdit} title="Edit dates" className="text-blue-200 hover:text-white transition-colors opacity-70 hover:opacity-100 flex-shrink-0">
+
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+
+                </button>
+
+              </div>
               <p className="mt-1 text-white font-medium">Project: {projectTitle}</p>
             </div>
           </div>

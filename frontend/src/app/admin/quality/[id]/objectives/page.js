@@ -26,15 +26,40 @@ export default function QualityObjectivesPage({ params: paramsPromise }) {
   const [saving, setSaving] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
 
+  // Editable header dates — persisted in localStorage per project
+  const DATES_KEY = `sqrmt_dates_${projectId}`;
+  const [issueDate, setIssueDate] = useState("01.01.2024");
+  const [revDate, setRevDate]     = useState("30.04.2025");
+  const [showDateEdit, setShowDateEdit] = useState(false);
+  const [tempIssueDate, setTempIssueDate] = useState("");
+  const [tempRevDate, setTempRevDate]     = useState("");
+
   const getToken = () => localStorage.getItem("sqrmt_token");
 
   useEffect(() => {
     const token = getToken();
     const user = JSON.parse(localStorage.getItem("sqrmt_user") || "{}");
     if (!token || user?.role !== "Admin") { router.push("/login"); return; }
+    // Load saved dates for this project
+    try {
+      const saved = JSON.parse(localStorage.getItem(DATES_KEY)) || {};
+      if (saved.issueDate) setIssueDate(saved.issueDate);
+      if (saved.revDate)   setRevDate(saved.revDate);
+    } catch {}
     fetchProject(token);
     fetchItems(token);
   }, [projectId]);
+
+  const openDateEdit = () => { setTempIssueDate(issueDate); setTempRevDate(revDate); setShowDateEdit(true); };
+  const saveDates = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DATES_KEY)) || {};
+      localStorage.setItem(DATES_KEY, JSON.stringify({ ...saved, issueDate: tempIssueDate, revDate: tempRevDate }));
+    } catch {}
+    setIssueDate(tempIssueDate);
+    setRevDate(tempRevDate);
+    setShowDateEdit(false);
+  };
 
   const fetchProject = async (t) => {
     try {
@@ -98,8 +123,15 @@ export default function QualityObjectivesPage({ params: paramsPromise }) {
               <p className="text-blue-200 text-sm mt-0.5">Doc No: QF/QPG/QUALITY OBJECTIVES</p>
             </div>
             <div className="text-right text-xs text-blue-200 space-y-0.5">
-              <p>Issue No.: 01 &nbsp;|&nbsp; Issue Date: 01.01.2024</p>
-              <p>Rev. No.: 01 &nbsp;|&nbsp; Rev. Date: 30.04.2025</p>
+              <div className="flex items-center justify-end gap-2">
+                <div className="space-y-0.5 text-right">
+                  <p>Issue No.: 01 &nbsp;|&nbsp; Issue Date: {issueDate}</p>
+                  <p>Rev. No.: 01 &nbsp;|&nbsp; Rev. Date: {revDate}</p>
+                </div>
+                <button onClick={openDateEdit} title="Edit dates" className="text-blue-200 hover:text-white transition-colors opacity-70 hover:opacity-100 flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                </button>
+              </div>
               <p className="mt-1 text-white font-medium">Project: {projectTitle}</p>
             </div>
           </div>
@@ -170,6 +202,35 @@ export default function QualityObjectivesPage({ params: paramsPromise }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Date Edit Modal */}
+      {showDateEdit && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDateEdit(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-[#003366] to-[#0077cc] text-white px-6 py-4 rounded-t-xl flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              <h3 className="font-bold text-base">Edit Document Dates</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-600 mb-1">Issue Date</label>
+                <input type="text" placeholder="e.g. 01.01.2024" value={tempIssueDate} onChange={e => setTempIssueDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-600 mb-1">Rev. Date</label>
+                <input type="text" placeholder="e.g. 30.04.2025" value={tempRevDate} onChange={e => setTempRevDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+              </div>
+              <p className="text-[11px] text-gray-400">Saved locally in this browser for this project.</p>
+              <div className="flex justify-end gap-3 pt-1">
+                <button type="button" onClick={() => setShowDateEdit(false)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="button" onClick={saveDates} className="px-6 py-2 bg-[#2a5494] hover:bg-[#1e3f72] text-white text-sm font-semibold rounded-lg shadow">Save Dates</button>
+              </div>
+            </div>
           </div>
         </div>
       )}
