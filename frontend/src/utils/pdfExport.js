@@ -85,7 +85,7 @@ function drawFooter(doc, { footerLeft, footerRight }) {
   doc.setFontSize(6.5);
   doc.setTextColor(90, 110, 140);
   doc.setFont("helvetica", "normal");
-  doc.text(footerLeft || "APPROVED BY:", 8, pageH - 4);
+  doc.text(footerLeft || "APPROVED BY: Director SSPL", 8, pageH - 4);
   doc.text(footerRight || "ISSUED BY: Dr. R. S. Saxena, Head QMS & MR", pageW / 2, pageH - 4, { align: "center" });
   doc.text(`Page ${pg} of ${total}`, pageW - 8, pageH - 4, { align: "right" });
 }
