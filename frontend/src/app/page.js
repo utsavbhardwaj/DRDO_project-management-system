@@ -18,7 +18,7 @@ export default function Home() {
             <div className="w-28 h-28 mx-auto rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center animate-pulse-glow">
               <img
                 src="/logo-right.png"
-                alt="QRAMS Logo"
+                alt="SQRMT Logo"
                 className="w-20 h-20 object-contain"
               />
             </div>
@@ -26,10 +26,10 @@ export default function Home() {
 
           {/* Title */}
           <h1 className="animate-fade-in-up text-5xl font-black text-white tracking-tight mb-2">
-            QRAMS
+            SQRMT
           </h1>
           <p className="animate-fade-in-up delay-100 text-yellow-300 text-sm font-semibold tracking-[0.2em] uppercase mb-6">
-            Quality Requirement Audit Management System
+            SSPL Quality Reliability Monitoring and Tracking
           </p>
 
           {/* Description */}
@@ -98,7 +98,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-[#003366]">Welcome to QRAMS</h2>
+            <h2 className="text-2xl font-bold text-[#003366]">Welcome to SQRMT</h2>
             <p className="text-gray-500 text-sm mt-2">
               Sign in to manage your projects, track audits, and collaborate securely.
             </p>

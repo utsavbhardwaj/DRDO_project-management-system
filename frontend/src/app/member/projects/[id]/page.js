@@ -17,7 +17,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     if (!token) return router.push("/login");
     fetchProject(token);
     fetchDocuments(token);
@@ -46,7 +46,7 @@ export default function MemberProjectDetails({ params: paramsPromise }) {
 
   const handleSubmission = async (e) => {
     e.preventDefault(); setSubmitting(true); setSuccess(false);
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     try {
       const r = await fetch(`${API_BASE_URL}/api/submissions`, {
         method: "POST",

@@ -1,4 +1,4 @@
-# QRAMS — Quality Requirement Audit Management System
+# SQRMT — SSPL Quality Reliability Monitoring and Tracking
 ### A Full-Stack Web Portal Built for DRDO
 
 ---
@@ -6,16 +6,16 @@
 ## 🚀 Project Overview
 
 ### What the Project Does
-QRAMS (Quality Requirement Audit Management System) is a full-stack, role-based web application built for **DRDO (Defence Research and Development Organisation)**. It provides a centralized digital platform to manage research projects, audit workflows, team assignments, document distribution, progress submissions, and internal notifications — all within a secure, access-controlled environment.
+SQRMT (SSPL Quality Reliability Monitoring and Tracking) is a full-stack, role-based web application built for **DRDO (Defence Research and Development Organisation)**. It provides a centralized digital platform to manage research projects, audit workflows, team assignments, document distribution, progress submissions, and internal notifications — all within a secure, access-controlled environment.
 
 ### Problem It Solves
-Before QRAMS, DRDO's internal project audit and quality management processes were largely **manual and paper-based** — documents were shared via email, team assignments were tracked on spreadsheets, and there was no centralized system to monitor audit progress or notify members of updates. This caused:
+Before SQRMT, DRDO's internal project audit and quality management processes were largely **manual and paper-based** — documents were shared via email, team assignments were tracked on spreadsheets, and there was no centralized system to monitor audit progress or notify members of updates. This caused:
 - Delays in document distribution
 - Lack of visibility into team responsibilities
 - No audit trail for project activity
 - Unauthorized access to sensitive project information
 
-QRAMS eliminates all of these pain points by bringing the entire workflow into one secure, structured digital portal.
+SQRMT eliminates all of these pain points by bringing the entire workflow into one secure, structured digital portal.
 
 ### Target Users
 | Role | Description |
@@ -24,7 +24,7 @@ QRAMS eliminates all of these pain points by bringing the entire workflow into o
 | **Project Member** | DRDO researchers/staff assigned to specific projects who can view documents, submit progress reports, and collaborate with their team |
 
 ### Why This Project Is Important
-In a government defence organization like DRDO, project accountability and audit compliance are critical. QRAMS ensures:
+In a government defence organization like DRDO, project accountability and audit compliance are critical. SQRMT ensures:
 - Every action is logged via an **Activity Log**
 - Only authorized users can access sensitive project data
 - Documents reach the right people instantly with **in-app + email notifications**

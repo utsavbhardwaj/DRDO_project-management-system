@@ -56,11 +56,11 @@ export default function MemberQualityHubPage({ params: paramsPromise }) {
   const [counts, setCounts] = useState({ objectives: 0, opportunities: 0, fracas: 0, risks: 0 });
   const [loading, setLoading] = useState(true);
 
-  const getToken = () => localStorage.getItem("qrams_token");
+  const getToken = () => localStorage.getItem("sqrmt_token");
 
   useEffect(() => {
     const token = getToken();
-    const user = JSON.parse(localStorage.getItem("qrams_user") || "{}");
+    const user = JSON.parse(localStorage.getItem("sqrmt_user") || "{}");
     if (!token || user?.role !== "Member") { router.push("/login"); return; }
     fetchAll(token);
   }, [projectId]);
@@ -150,7 +150,7 @@ export default function MemberQualityHubPage({ params: paramsPromise }) {
       </div>
 
       <div className="mt-8 text-center text-xs text-gray-400">
-        <p>QRAMS · Quality Requirement Audit Management System · Solid State Physics Laboratory, New Delhi</p>
+        <p>SQRMT · SSPL Quality Reliability Monitoring and Tracking · Solid State Physics Laboratory, New Delhi</p>
         <p className="mt-0.5">Issue Date: 01.01.2024 &nbsp;|&nbsp; Rev. Date: 30.04.2025 &nbsp;|&nbsp; Pages: 1 of 1</p>
       </div>
     </div>

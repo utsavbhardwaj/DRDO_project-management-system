@@ -116,7 +116,7 @@ export default function ResetPassword({ params: paramsPromise }) {
               Set New Password
             </h2>
             <p className="text-sm text-gray-500 text-center mb-8">
-              Create a strong new password for your QRAMS account.
+              Create a strong new password for your SQRMT account.
             </p>
 
             {/* Error */}

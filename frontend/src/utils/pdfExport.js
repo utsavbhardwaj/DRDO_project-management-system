@@ -1,4 +1,4 @@
-// QRAMS — PDF Export Utility
+// SQRMT — PDF Export Utility
 // Generates individual per-entry PDF reports using jsPDF + jspdf-autotable
 
 async function getBase64Image(url) {

@@ -28,8 +28,8 @@ export default function Login() {
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("qrams_token", data.token);
-        localStorage.setItem("qrams_user", JSON.stringify(data));
+        localStorage.setItem("sqrmt_token", data.token);
+        localStorage.setItem("sqrmt_user", JSON.stringify(data));
         if (data.role === "Admin") router.push("/admin/dashboard");
         else router.push("/member/dashboard");
       } else {

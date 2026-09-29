@@ -13,7 +13,7 @@ export default function Header() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('qrams_user');
+    const storedUser = localStorage.getItem('sqrmt_user');
     if (storedUser) {
       const u = JSON.parse(storedUser);
       setUser(u);
@@ -30,7 +30,7 @@ export default function Header() {
   }, []);
 
   const fetchNotifications = async () => {
-    const token = localStorage.getItem('qrams_token');
+    const token = localStorage.getItem('sqrmt_token');
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE_URL}/api/notifications`, {
@@ -41,7 +41,7 @@ export default function Header() {
   };
 
   const markRead = async (id) => {
-    const token = localStorage.getItem('qrams_token');
+    const token = localStorage.getItem('sqrmt_token');
     try {
       await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
         method: 'PUT', headers: { Authorization: `Bearer ${token}` }
@@ -51,7 +51,7 @@ export default function Header() {
   };
 
   const markAllRead = async () => {
-    const token = localStorage.getItem('qrams_token');
+    const token = localStorage.getItem('sqrmt_token');
     try {
       await fetch(`${API_BASE_URL}/api/notifications/mark-all-read`, {
         method: 'PUT', headers: { Authorization: `Bearer ${token}` }
@@ -61,8 +61,8 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('qrams_token');
-    localStorage.removeItem('qrams_user');
+    localStorage.removeItem('sqrmt_token');
+    localStorage.removeItem('sqrmt_user');
     setUser(null);
     router.push('/');
   };
@@ -83,7 +83,7 @@ export default function Header() {
           {/* Center title */}
           <div className="text-center flex-1 px-4">
             <h1 className="text-xl md:text-2xl font-bold tracking-wide">
-              Quality Requirement Audit Management System
+              SSPL Quality Reliability Monitoring and Tracking
             </h1>
             <p className="text-yellow-300 text-sm italic font-medium mt-0.5">
               Solid State Physics Laboratory

@@ -2,7 +2,7 @@ You are a senior full-stack developer and system architect.
 
 Build a complete production-ready web application for:
 
-Project Name: QRAMS (Quality Requirement Audit Management System)
+Project Name: SQRMT (SSPL Quality Reliability Monitoring and Tracking)
 
 Design Reference:
 - Use a clean, professional government-style UI similar to DRDO portals

@@ -25,12 +25,12 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
   const [pingRemarks, setPingRemarks] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     if (!token) return router.push("/login");
     fetchAll(token);
   }, [id]);
 
-  const getToken = () => localStorage.getItem("qrams_token");
+  const getToken = () => localStorage.getItem("sqrmt_token");
 
   const fetchAll = (t) => {
     fetchProject(t);

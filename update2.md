@@ -1,9 +1,9 @@
-# QRAMS — Update 2 Implementation Notes
+# SQRMT — Update 2 Implementation Notes
 
 ## 1. DRDO Quality Format Reports (Phase 1)
 
 ### What was built
-Four official DRDO SSPL quality management format reports have been integrated into QRAMS, accessible per-project by administrators.
+Four official DRDO SSPL quality management format reports have been integrated into SQRMT, accessible per-project by administrators.
 
 ### New Pages
 | Route | Description |

@@ -1,6 +1,6 @@
-# QRAMS (Quality Requirement Audit Management System) - Study Guide
+# SQRMT (SSPL Quality Reliability Monitoring and Tracking) - Study Guide
 
-This document breaks down the QRAMS project from basic to advanced concepts, designed for interview preparation and deep understanding of the codebase.
+This document breaks down the SQRMT project from basic to advanced concepts, designed for interview preparation and deep understanding of the codebase.
 
 ---
 
@@ -23,7 +23,7 @@ Your project uses a **Client-Server Architecture**. Think of it like a restauran
 
 ## Part 2: How Login and Authorization Work
 
-Because QRAMS has sensitive DRDO data, it uses a very secure method called **JWT (JSON Web Tokens)** combined with **Role-Based Access Control (RBAC)**.
+Because SQRMT has sensitive DRDO data, it uses a very secure method called **JWT (JSON Web Tokens)** combined with **Role-Based Access Control (RBAC)**.
 
 **The Login Flow:**
 1. A user enters their email and password on the frontend.
@@ -322,7 +322,7 @@ These models represent specialized templates required for DRDO audits and qualit
 
 ## Part 5: Code Dissection - Backend Mail Service (`backend/services/mailService.js`)
 
-QRAMS relies on emails for user security workflows (registration and password resets) and project alerts. Let's see how this is implemented.
+SQRMT relies on emails for user security workflows (registration and password resets) and project alerts. Let's see how this is implemented.
 
 ### 1. Transporter Setup (Lines 5-14)
 ```javascript
@@ -376,7 +376,7 @@ Here is the structured architecture of the relationships between the database en
   * **Prisma details:** Prisma creates an implicit join table named `_ProjectMembers` containing `A` (User ID) and `B` (Project ID) with foreign key restraints mapping to both tables.
 
 ### 2. One-to-Many (`1:N`) Relationships
-These define ownership structures inside QRAMS.
+These define ownership structures inside SQRMT.
 
 * **`User` (Admin) ===> `Document`**:
   * An Admin can upload many audit documents (`1:N`). Each document records its specific uploader (`uploadedById`).

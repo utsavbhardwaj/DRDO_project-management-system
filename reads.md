@@ -2,7 +2,7 @@ Act as a senior full-stack developer and system architect.
 
 Build a complete production-ready web application for a government-level internship project called:
 
-"QRAMS – Quality Requirement Audit Management System"
+"SQRMT – SSPL Quality Reliability Monitoring and Tracking"
 
 🎯 Objective:
 The system is designed for DRDO to manage, monitor, and audit ongoing projects, track updates, assign members, and collect structured reports.

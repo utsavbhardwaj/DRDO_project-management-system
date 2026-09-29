@@ -26,11 +26,11 @@ export default function QualityObjectivesPage({ params: paramsPromise }) {
   const [saving, setSaving] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
 
-  const getToken = () => localStorage.getItem("qrams_token");
+  const getToken = () => localStorage.getItem("sqrmt_token");
 
   useEffect(() => {
     const token = getToken();
-    const user = JSON.parse(localStorage.getItem("qrams_user") || "{}");
+    const user = JSON.parse(localStorage.getItem("sqrmt_user") || "{}");
     if (!token || user?.role !== "Admin") { router.push("/login"); return; }
     fetchProject(token);
     fetchItems(token);

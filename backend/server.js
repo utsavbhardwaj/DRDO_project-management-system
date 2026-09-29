@@ -29,7 +29,7 @@ app.use('/api/quality', require('./routes/qualityRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {
-  res.send('QRAMS API is running...');
+  res.send('SQRMT API is running...');
 });
 
 // Start server

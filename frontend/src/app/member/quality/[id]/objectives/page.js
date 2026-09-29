@@ -27,11 +27,11 @@ export default function MemberQualityObjectivesPage({ params: paramsPromise }) {
   const [projectTitle, setProjectTitle] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
 
-  const getToken = () => localStorage.getItem("qrams_token");
+  const getToken = () => localStorage.getItem("sqrmt_token");
 
   useEffect(() => {
     const token = getToken();
-    const user = JSON.parse(localStorage.getItem("qrams_user") || "{}");
+    const user = JSON.parse(localStorage.getItem("sqrmt_user") || "{}");
     if (!token || user?.role !== "Member") { router.push("/login"); return; }
     setCurrentUser(user);
     fetchProject(token);

@@ -16,8 +16,8 @@ export default function AdminDashboard() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("qrams_user"));
-    const token = localStorage.getItem("qrams_token");
+    const user = JSON.parse(localStorage.getItem("sqrmt_user"));
+    const token = localStorage.getItem("sqrmt_token");
     if (!token || user?.role !== "Admin") { router.push("/login"); return; }
     fetchProjects(token);
   }, [router]);
@@ -32,7 +32,7 @@ export default function AdminDashboard() {
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/projects`, {
         method: "POST",
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
   const handleDeleteProject = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/projects/${deleteTarget._id}`, {
         method: "DELETE",

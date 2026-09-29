@@ -12,8 +12,8 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("qrams_token");
-    const storedUser = JSON.parse(localStorage.getItem("qrams_user"));
+    const token = localStorage.getItem("sqrmt_token");
+    const storedUser = JSON.parse(localStorage.getItem("sqrmt_user"));
     if (!token || storedUser?.role !== "Member") { router.push("/login"); return; }
     setUser(storedUser);
     fetchProjects(token);

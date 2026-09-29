@@ -1,6 +1,6 @@
-# QRAMS (Quality Requirement Audit Management System)
+# SQRMT (SSPL Quality Reliability Monitoring and Tracking)
 
-QRAMS is a robust, production-ready full-stack web application designed for DRDO to manage projects, audits, members, and documents across multiple teams.
+SQRMT is a robust, production-ready full-stack web application designed for DRDO to manage projects, audits, members, and documents across multiple teams.
 
 
 

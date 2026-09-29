@@ -1,4 +1,4 @@
-You are a senior full-stack developer. I already have a working web application called QRAMS (Quality Requirement Audit Management System). The current system supports authentication, project creation, and basic dashboard functionality.
+You are a senior full-stack developer. I already have a working web application called SQRMT (SSPL Quality Reliability Monitoring and Tracking). The current system supports authentication, project creation, and basic dashboard functionality.
 
 Now extend the system by implementing the following features with clean architecture, scalable design, and proper role-based access control.
 
@@ -22,7 +22,7 @@ Now extend the system by implementing the following features with clean architec
 🧩 FEATURE 2: Admin Assign Members to Project
 -----------------------------------
 - Admin should be able to:
-  - View all registered users (who signed up in QRAMS)
+  - View all registered users (who signed up in SQRMT)
   - Select multiple users and assign them to a project
 
 - UI:

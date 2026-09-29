@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 async function main() {
   try {
     const info = await transporter.sendMail({
-      from: '"QRAMS System" <myhealthtube.com@gmail.com>',
+      from: '"SQRMT System" <myhealthtube.com@gmail.com>',
       to: 'utsavjha.me@gmail.com', // Sending to the user's primary email
       subject: 'Strict SMTP Test',
       text: 'Trying to debug this brevo issue.',

@@ -5,8 +5,8 @@ dotenv.config();
 // Create transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: false, // true for 465, false for other ports
+  port: Number(process.env.SMTP_PORT) || 2525,
+  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -23,11 +23,11 @@ const sendVerificationEmail = async (user, token) => {
     const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${token}`;
     
     const mailOptions = {
-      from: `"QRAMS System" <${process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
+      from: `"SQRMT System" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
       to: user.email,
-      subject: 'Verify your QRAMS Account',
+      subject: 'Verify your SQRMT Account',
       html: `
-        <h2>Welcome to QRAMS, ${user.name}!</h2>
+        <h2>Welcome to SQRMT, ${user.name}!</h2>
         <p>Please verify your email address by clicking the link below:</p>
         <a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
         <br/><br/>
@@ -55,9 +55,9 @@ const sendPasswordResetEmail = async (user, token) => {
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${token}`;
     
     const mailOptions = {
-      from: `"QRAMS - DRDO SSPL" <${process.env.SMTP_FROM_EMAIL || 'noreply@sspl.drdo.in'}>`,
+      from: `"SQRMT - DRDO SSPL" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'noreply@sspl.drdo.in'}>`,
       to: user.email,
-      subject: '🔐 Password Reset Request — QRAMS | Solid State Physics Laboratory',
+      subject: '🔐 Password Reset Request — SQRMT | Solid State Physics Laboratory',
       html: `
         <!DOCTYPE html>
         <html>
@@ -71,8 +71,8 @@ const sendPasswordResetEmail = async (user, token) => {
                 <tr>
                   <td style="background:linear-gradient(135deg,#003366,#0077cc);padding:28px 36px;text-align:center;">
                     <p style="color:#ffd700;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px 0;">Solid State Physics Laboratory · New Delhi</p>
-                    <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 4px 0;">QRAMS Security Alert</h1>
-                    <p style="color:#b3d4f0;font-size:12px;margin:0;">Quality Requirement Audit Management System</p>
+                    <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 4px 0;">SQRMT Security Alert</h1>
+                    <p style="color:#b3d4f0;font-size:12px;margin:0;">SSPL Quality Reliability Monitoring and Tracking</p>
                   </td>
                 </tr>
 
@@ -91,7 +91,7 @@ const sendPasswordResetEmail = async (user, token) => {
                   <td style="padding:32px 36px;">
                     <p style="color:#333;font-size:15px;margin:0 0 12px 0;">Hello <strong>${user.name}</strong>,</p>
                     <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 20px 0;">
-                      We received a request to reset the password for your QRAMS account associated with this email address.
+                      We received a request to reset the password for your SQRMT account associated with this email address.
                       Click the button below to create a new password:
                     </p>
                     
@@ -132,7 +132,7 @@ const sendPasswordResetEmail = async (user, token) => {
                 <tr>
                   <td style="background:#f8f9fa;padding:18px 36px;border-top:1px solid #e0e0e0;text-align:center;">
                     <p style="color:#999;font-size:11px;margin:0;">
-                      This is an automated security message from QRAMS · DRDO Solid State Physics Laboratory<br/>
+                      This is an automated security message from SQRMT · DRDO Solid State Physics Laboratory<br/>
                       New Delhi · Do not reply to this email
                     </p>
                   </td>
@@ -163,7 +163,7 @@ const sendPasswordResetEmail = async (user, token) => {
 const sendProjectPingEmail = async (project, manager, remarks = '') => {
   try {
     const mailOptions = {
-      from: `"QRAMS Admin" <${process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
+      from: `"SQRMT Admin" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
       to: manager.email,
       subject: 'Reminder: Submit Project Report',
       html: `
@@ -181,7 +181,7 @@ const sendProjectPingEmail = async (project, manager, remarks = '') => {
         
         <br/>
         <p>Thank you,</p>
-        <p>QRAMS Administration</p>
+        <p>SQRMT Administration</p>
       `,
     };
 
@@ -202,7 +202,7 @@ const sendProjectPingEmail = async (project, manager, remarks = '') => {
 const sendReportSubmissionEmail = async (project, admin) => {
   try {
     const mailOptions = {
-      from: `"QRAMS System" <${process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
+      from: `"SQRMT System" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'myhealthtube.com@gmail.com'}>`,
       to: admin.email,
       subject: 'Report Submitted',
       html: `
@@ -236,9 +236,9 @@ const sendQualitySubmissionEmail = async (admin, member, project, reportType, en
     const viewUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/quality/${project.id}/${formatKey}`;
 
     const mailOptions = {
-      from: `"QRAMS - DRDO SSPL" <${process.env.SMTP_FROM_EMAIL || 'noreply@sspl.drdo.in'}>`,
+      from: `"SQRMT - DRDO SSPL" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'noreply@sspl.drdo.in'}>`,
       to: admin.email,
-      subject: `📋 New ${reportType} Submitted — ${project.title} | QRAMS`,
+      subject: `📋 New ${reportType} Submitted — ${project.title} | SQRMT`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -251,9 +251,9 @@ const sendQualitySubmissionEmail = async (admin, member, project, reportType, en
                 <!-- Header -->
                 <tr>
                   <td style="background:linear-gradient(135deg,#003366,#0077cc);padding:28px 36px;text-align:center;">
-                    <p style="color:#ffd700;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px 0;">Solid State Physics Laboratory · New Delhi · QRAMS</p>
+                    <p style="color:#ffd700;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px 0;">Solid State Physics Laboratory · New Delhi · SQRMT</p>
                     <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 4px 0;">Quality Format Submitted</h1>
-                    <p style="color:#b3d4f0;font-size:12px;margin:0;">Quality Requirement Audit Management System</p>
+                    <p style="color:#b3d4f0;font-size:12px;margin:0;">SSPL Quality Reliability Monitoring and Tracking</p>
                   </td>
                 </tr>
 
@@ -310,7 +310,7 @@ const sendQualitySubmissionEmail = async (admin, member, project, reportType, en
                 <tr>
                   <td style="background:#f8f9fa;padding:16px 36px;border-top:1px solid #e0e0e0;text-align:center;">
                     <p style="color:#999;font-size:11px;margin:0;">
-                      QRAMS · DRDO Solid State Physics Laboratory, New Delhi · Do not reply to this email
+                      SQRMT · DRDO Solid State Physics Laboratory, New Delhi · Do not reply to this email
                     </p>
                   </td>
                 </tr>

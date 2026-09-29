@@ -14,8 +14,8 @@ export default function ContributorsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("qrams_user"));
-    const token = localStorage.getItem("qrams_token");
+    const user = JSON.parse(localStorage.getItem("sqrmt_user"));
+    const token = localStorage.getItem("sqrmt_token");
     if (!token || user?.role !== "Admin") { router.push("/login"); return; }
     fetchContributors(token);
   }, [router]);
@@ -41,7 +41,7 @@ export default function ContributorsPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
-    const token = localStorage.getItem("qrams_token");
+    const token = localStorage.getItem("sqrmt_token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/users/${deleteTarget._id}`, {
         method: "DELETE",

@@ -1,7 +1,7 @@
-# QRAMS — Mock Interview Q&A
+# SQRMT — Mock Interview Q&A
 
 > **Candidate:** Utsav Bhardwaj  
-> **Project:** QRAMS (Quality Requirement Audit Management System) — DRDO SSPL  
+> **Project:** SQRMT (SSPL Quality Reliability Monitoring and Tracking) — DRDO SSPL  
 > **Stack:** Next.js · Node.js/Express · Prisma ORM · PostgreSQL (Neon) · JWT · bcrypt  
 
 ---
@@ -14,7 +14,7 @@
 
 So the context here is DRDO's Solid State Physics Laboratory, or SSPL, which is a defense research lab that runs roughly **25 active R&D projects** spread across **10 departments** at any given time. Each project involves multi-stage quality audits — things like FRACAS failure reports (which stands for Failure Reporting, Analysis, and Corrective Action System — it's a standard methodology used in defense and aerospace for tracking equipment and component failures), risk assessments where you calculate likelihood-times-impact matrices, opportunity registers for improvement tracking, and monthly progress submissions from each project manager.
 
-Before I built QRAMS, this entire lifecycle was running on **paper forms, Excel sheets, and email threads**. There was no centralized system — every department was essentially an island.
+Before I built SQRMT, this entire lifecycle was running on **paper forms, Excel sheets, and email threads**. There was no centralized system — every department was essentially an island.
 
 The core pain points were:
 
@@ -26,7 +26,7 @@ The core pain points were:
 
 4. **Document chaos:** Audit-critical documents — PDFs, scanned failure reports, quality certificates — were scattered across email attachments, USB drives, and individual desktops, with no versioning, no central repository, and no way to tie a specific document to a specific project. If a PM left the organization or changed machines, those documents could effectively be lost.
 
-**QRAMS digitized this entire workflow** into a role-based web application. The Admin (which maps to the Lab Director or reviewing authority) gets a real-time dashboard showing all 25 projects at once — their statuses, assigned members, uploaded documents, and pending quality entries. The Director can now "ping" a specific project manager directly from the dashboard to request an update, and the system sends them an email notification automatically. Every single action in the system — every document upload, every progress submission, every quality entry creation — is logged in an immutable `ActivityLog` table with timestamps, user IDs, and project IDs. This means during an external audit, you can pull up a complete, chronological history of who did what and when.
+**SQRMT digitized this entire workflow** into a role-based web application. The Admin (which maps to the Lab Director or reviewing authority) gets a real-time dashboard showing all 25 projects at once — their statuses, assigned members, uploaded documents, and pending quality entries. The Director can now "ping" a specific project manager directly from the dashboard to request an update, and the system sends them an email notification automatically. Every single action in the system — every document upload, every progress submission, every quality entry creation — is logged in an immutable `ActivityLog` table with timestamps, user IDs, and project IDs. This means during an external audit, you can pull up a complete, chronological history of who did what and when.
 
 For Members (Project Managers), they only see and interact with the projects they are explicitly assigned to. A PM in the optics department cannot see projects from the semiconductor department — this boundary is enforced at both the API layer (through Prisma query scoping) and the frontend (through conditional rendering). The system doesn't just hide the UI — even if someone tries to access another project's data through a direct API call, the server will reject it.
 
@@ -38,7 +38,7 @@ For Members (Project Managers), they only see and interact with the projects the
 
 ### Answer
 
-Sure. So let me start from the fundamentals and then walk you through exactly how it works in QRAMS.
+Sure. So let me start from the fundamentals and then walk you through exactly how it works in SQRMT.
 
 **RBAC**, or Role-Based Access Control, is an authorization model where permissions aren't assigned to individual users directly — instead, you define **roles** (like Admin, Editor, Viewer), and each role carries a set of permissions. Users are then assigned a role, and they inherit all the permissions that come with it. The benefit of this over per-user permissions is scalability — if you have 50 project managers, you don't set permissions individually for each one; you just assign them the "Member" role and the system knows what they can and can't do.
 
@@ -230,7 +230,7 @@ This **defense-in-depth** approach ensures that even if someone bypasses the fro
 
 ## Question 3 of 8 — N+1 Query Optimization (~96% DB Call Reduction)
 
-**Interviewer:** You mentioned on your resume that QRAMS reduced DB calls by ~96% by solving N+1 query issues. Walk me through a specific example — where exactly was the N+1 happening, what query was being fired, and what did you change to fix it?
+**Interviewer:** You mentioned on your resume that SQRMT reduced DB calls by ~96% by solving N+1 query issues. Walk me through a specific example — where exactly was the N+1 happening, what query was being fired, and what did you change to fix it?
 
 ### Answer
 
@@ -248,7 +248,7 @@ The fix is conceptually simple: instead of fetching related data in a loop, you 
 
 #### The Specific Scenario: Admin Dashboard — Project List with Members
 
-The most impactful N+1 problem in QRAMS was on the **Admin Dashboard**. When the director logs in, the frontend calls `GET /api/projects`, and the backend needs to return every project along with the names and emails of all assigned members for each project.
+The most impactful N+1 problem in SQRMT was on the **Admin Dashboard**. When the director logs in, the frontend calls `GET /api/projects`, and the backend needs to return every project along with the names and emails of all assigned members for each project.
 
 **The naive (broken) approach** that I originally had would have looked something like this conceptually: first, fetch all projects from the `Project` table. Then, for each project, go back to the database and query the `_ProjectMembers` join table to find which users are assigned, and then fetch those user records. If there are 25 projects, that's 1 query to get the project list, then 25 more queries to resolve the many-to-many relationship for each project — **26 queries total**.
 
@@ -270,7 +270,7 @@ The `select` clause is also important here — by specifying `{ id: true, name: 
 
 #### Second Scenario: Quality Modules — Resolving Submitter Information
 
-QRAMS has four quality audit modules: Quality Objectives, FRACAS Reports, Opportunity Registers, and Risk Assessments. Each entry in these modules is submitted by a specific user (`submittedById` foreign key). When the admin views the Quality Objectives page for a project, the frontend needs to display not just the quality data but also **who submitted each entry** — the submitter's name and email.
+SQRMT has four quality audit modules: Quality Objectives, FRACAS Reports, Opportunity Registers, and Risk Assessments. Each entry in these modules is submitted by a specific user (`submittedById` foreign key). When the admin views the Quality Objectives page for a project, the frontend needs to display not just the quality data but also **who submitted each entry** — the submitter's name and email.
 
 Without eager loading, this would be another N+1 disaster. If a project has 20 quality objective entries, the naive approach would fetch all 20 entries, then fire 20 separate queries to look up the submitter's name from the `User` table for each one. That's 21 queries.
 
@@ -382,11 +382,11 @@ For DRDO specifically, this mattered because the system is designed to eventuall
 
 ## Question 4 of 8 — Relational Database Schema & Data Integrity
 
-**Interviewer:** Let's look under the hood. Walk me through the database schema design of QRAMS. What are the key models, how do they relate to each other, and how did you guarantee data integrity and audit-readiness at the SQL level?
+**Interviewer:** Let's look under the hood. Walk me through the database schema design of SQRMT. What are the key models, how do they relate to each other, and how did you guarantee data integrity and audit-readiness at the SQL level?
 
 ### Answer
 
-For QRAMS, the database schema is the backbone of the entire audit-trail and security model. The application uses **PostgreSQL** hosted on **Neon**, with **Prisma ORM** managing the schema, migrations, and query execution. 
+For SQRMT, the database schema is the backbone of the entire audit-trail and security model. The application uses **PostgreSQL** hosted on **Neon**, with **Prisma ORM** managing the schema, migrations, and query execution. 
 
 While the initial project prompt suggested a NoSQL database like MongoDB, I made a conscious architectural decision to use a **relational database**. In a defense R&D environment like DRDO, we aren't handling unstructured social media posts; we are handling highly structured audit records, failure reports, and strict team-project hierarchies. PostgreSQL provides the **ACID compliance**, **strict relational constraints**, and **join efficiency** required to guarantee that no document upload, notification, or audit log ever becomes orphaned or inconsistent.
 
@@ -460,7 +460,7 @@ The registration flow is split into two tables to prevent unverified accounts fr
 * **`ActivityLog`**: Captures system actions (e.g., `"Document Uploaded"`, `"Progress Updated"`). It holds optional foreign keys `userId` and `projectId` to track the actor and target project.
 
 ##### E. Specialized DRDO Quality Module Tables
-To digitize DRDO's quality standards, QRAMS implements four distinct relational modules representing audit forms:
+To digitize DRDO's quality standards, SQRMT implements four distinct relational modules representing audit forms:
 1. **`QualityObjective`**: Relates activities, targets, signatures, responsibilities, and `adminRemarks`.
 2. **`OpportunityRegister`**: Logs process opportunities, potential benefits, implementation plans, and reviews.
 3. **`FracasReport`** (Failure Reporting, Analysis, and Corrective Action System): Logs system/component failures. Fields like `nomenclature`, `defectObserved`, `componentManufacturer`, and `typeOfFailure` (defaults to `"Minor"`) map directly to defense formats.
@@ -472,7 +472,7 @@ Every record in these four tables is explicitly linked to a `Project` (so they a
 
 #### 3. Data Integrity & Auditing Compliance: `Cascade` vs. `SetNull`
 
-A critical part of database design for government audits is deciding what happens to historical data when other records are deleted. In QRAMS, I configured referential constraints carefully using Prisma's `onDelete` behaviors:
+A critical part of database design for government audits is deciding what happens to historical data when other records are deleted. In SQRMT, I configured referential constraints carefully using Prisma's `onDelete` behaviors:
 
 ##### When to Cascade Delete (`onDelete: Cascade`)
 For transactional and relational data that cannot exist without its parent, I defined `onDelete: Cascade`.
@@ -497,13 +497,13 @@ For the compliance log (`ActivityLog`) and creator relationships in Quality modu
 
 ## Question 7 of 8 — Concurrency, Load Testing & What Breaks First
 
-**Interviewer:** QRAMS was used by 70+ scientists across 9 projects. At some point multiple scientists are hitting the system simultaneously — submitting progress reports, uploading documents, admin pinging members. Did you do any load testing or think about concurrency? What breaks first under simultaneous load in your current architecture?
+**Interviewer:** SQRMT was used by 70+ scientists across 9 projects. At some point multiple scientists are hitting the system simultaneously — submitting progress reports, uploading documents, admin pinging members. Did you do any load testing or think about concurrency? What breaks first under simultaneous load in your current architecture?
 
 ### Answer
 
 #### Honest Starting Point — No Formal Load Testing
 
-I'll be upfront — I didn't run formal load testing with tools like Artillery, k6, or Apache JMeter against QRAMS. The reason was practical: this was deployed on an internal LAN at DRDO SSPL, serving roughly 70 scientists across 9 active projects. The peak concurrent usage was maybe 10-15 users at once, which is well within what a single Node.js + Express process can handle without breaking a sweat. That said, I did think carefully about concurrency at the design level, and I can walk you through what I identified as the failure points and how the architecture either handles or would need to be extended to handle them.
+I'll be upfront — I didn't run formal load testing with tools like Artillery, k6, or Apache JMeter against SQRMT. The reason was practical: this was deployed on an internal LAN at DRDO SSPL, serving roughly 70 scientists across 9 active projects. The peak concurrent usage was maybe 10-15 users at once, which is well within what a single Node.js + Express process can handle without breaking a sweat. That said, I did think carefully about concurrency at the design level, and I can walk you through what I identified as the failure points and how the architecture either handles or would need to be extended to handle them.
 
 ---
 
@@ -515,7 +515,7 @@ Node.js runs on a **single-threaded event loop**. This sounds like a limitation,
 
 This means a single Node.js process can handle **thousands of concurrent I/O-bound requests** without running out of threads, because it's never actually waiting — it's always processing. The bottleneck isn't the event loop; it's the **external resources** the event loop is talking to — primarily the database and the SMTP email server. That's where concurrency problems would actually surface.
 
-The one thing that **would** block the event loop is CPU-intensive synchronous work. In QRAMS, the main CPU-bound operation is `bcrypt.compare()` during login. Bcrypt is deliberately slow — it runs 1,024 rounds of hashing — but I'm using `bcryptjs`, which is a pure JavaScript implementation. Each bcrypt comparison takes roughly 50-100ms of CPU time, during which the event loop is blocked and no other request can be processed. For 70 users logging in one at a time, this is fine. But if 50 scientists all tried to log in simultaneously — say, at 9 AM when the shift starts — those bcrypt comparisons would queue up sequentially on the single thread, and the last person in the queue could wait several seconds. In a high-scale scenario, the fix would be to use the native C++ `bcrypt` package instead of `bcryptjs` (which offloads the hashing to a worker thread via libuv's thread pool), or to move authentication to a separate microservice.
+The one thing that **would** block the event loop is CPU-intensive synchronous work. In SQRMT, the main CPU-bound operation is `bcrypt.compare()` during login. Bcrypt is deliberately slow — it runs 1,024 rounds of hashing — but I'm using `bcryptjs`, which is a pure JavaScript implementation. Each bcrypt comparison takes roughly 50-100ms of CPU time, during which the event loop is blocked and no other request can be processed. For 70 users logging in one at a time, this is fine. But if 50 scientists all tried to log in simultaneously — say, at 9 AM when the shift starts — those bcrypt comparisons would queue up sequentially on the single thread, and the last person in the queue could wait several seconds. In a high-scale scenario, the fix would be to use the native C++ `bcrypt` package instead of `bcryptjs` (which offloads the hashing to a worker thread via libuv's thread pool), or to move authentication to a separate microservice.
 
 ---
 
@@ -554,7 +554,7 @@ This is a classic **TOCTOU (Time of Check, Time of Use)** race condition. In pra
 
 3. **Optimistic locking**: Add a `version` integer field to the `Submission` model. On every update, increment the version and include the expected version in the `WHERE` clause. If two concurrent updates try to write, the second one will fail because the version has already changed.
 
-For QRAMS's use case, option 2 (Prisma `upsert`) would be the cleanest fix — it's a one-line change that eliminates the race condition entirely without adding schema complexity.
+For SQRMT's use case, option 2 (Prisma `upsert`) would be the cleanest fix — it's a one-line change that eliminates the race condition entirely without adding schema complexity.
 
 ---
 
@@ -564,7 +564,7 @@ There's a similar pattern in the `addMembers` controller in the project module. 
 
 This is a **read-modify-write** cycle, and it's vulnerable to a lost update if two admin sessions try to modify the same project's member list simultaneously. Say admin A adds User X and admin B adds User Y at the same time. Both read the current list (say it's [U1, U2]). Admin A writes [U1, U2, X]. Admin B writes [U1, U2, Y] — overwriting A's change. User X gets silently dropped.
 
-In practice, QRAMS has a single admin, so this can't actually happen. But in a multi-admin system, you'd solve it with either:
+In practice, SQRMT has a single admin, so this can't actually happen. But in a multi-admin system, you'd solve it with either:
 - **Prisma's `connect` API** instead of `set`: `{ assignedMembers: { connect: [{ id: newMemberId }] } }` is additive — it doesn't replace the entire list, it just adds to it, so concurrent additions don't overwrite each other.
 - **Optimistic concurrency control**: Include an `updatedAt` timestamp in the read and check that it hasn't changed before writing.
 
@@ -616,7 +616,7 @@ The current architecture handles 70 scientists on a LAN comfortably because Node
 
 ## Question 8 of 8 — Live Debugging: The Missing Submission
 
-**Interviewer:** QRAMS is now live inside DRDO. A scientist comes to you and says: "My progress report submission shows as saved on my screen but the director says he can't see it on his dashboard." You have access to the server, the database, and the logs. Walk me through exactly how you debug this — step by step.
+**Interviewer:** SQRMT is now live inside DRDO. A scientist comes to you and says: "My progress report submission shows as saved on my screen but the director says he can't see it on his dashboard." You have access to the server, the database, and the logs. Walk me through exactly how you debug this — step by step.
 
 ### Answer
 
@@ -679,7 +679,7 @@ If the database has no submission row, the write failed somewhere. There are thr
 
 #### Step 3 — Cross-Check with the ActivityLog
 
-Here's a useful forensic step specific to QRAMS's design. Every submission — both new and updated — writes an `ActivityLog` entry immediately after the Prisma write:
+Here's a useful forensic step specific to SQRMT's design. Every submission — both new and updated — writes an `ActivityLog` entry immediately after the Prisma write:
 
 ```javascript
 await prisma.activityLog.create({
