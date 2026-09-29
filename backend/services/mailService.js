@@ -332,10 +332,128 @@ const sendQualitySubmissionEmail = async (admin, member, project, reportType, en
   }
 };
 
+/**
+ * Send Admin-Created Contributor Account Email
+ * @param {Object} user        - { name, email }
+ * @param {String} password    - plain-text default password
+ * @param {Object} project     - { title }
+ */
+const sendAdminCreatedAccountEmail = async (user, password, project) => {
+  try {
+    const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`;
+    const mailOptions = {
+      from: `"SQRMT - DRDO SSPL" <${process.env.EMAIL_FROM || process.env.SMTP_FROM_EMAIL || 'noreply@sspl.drdo.in'}>`,
+      to: user.email,
+      subject: `🎉 Your SQRMT Account Has Been Created — ${project.title}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+        <body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:30px 0;">
+            <tr><td align="center">
+              <table width="580" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+
+                <!-- Header -->
+                <tr>
+                  <td style="background:linear-gradient(135deg,#003366,#0077cc);padding:28px 36px;text-align:center;">
+                    <p style="color:#ffd700;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px 0;">Solid State Physics Laboratory · New Delhi</p>
+                    <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 4px 0;">Account Created for You</h1>
+                    <p style="color:#b3d4f0;font-size:12px;margin:0;">SSPL Quality Reliability Monitoring and Tracking</p>
+                  </td>
+                </tr>
+
+                <!-- Icon banner -->
+                <tr>
+                  <td style="background:#e8f0fb;padding:20px;text-align:center;border-bottom:1px solid #d0dff0;">
+                    <div style="display:inline-block;background:#ffffff;border-radius:50%;padding:14px;border:2px solid #2a5494;">
+                      <span style="font-size:28px;">🎉</span>
+                    </div>
+                    <p style="color:#003366;font-size:16px;font-weight:700;margin:10px 0 0 0;">Welcome to SQRMT, ${user.name}!</p>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding:32px 36px;">
+                    <p style="color:#333;font-size:15px;margin:0 0 12px 0;">Hello <strong>${user.name}</strong>,</p>
+                    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 20px 0;">
+                      An administrator has created a contributor account for you on <strong>SQRMT</strong>.
+                      You have been added to the project <strong>${project.title}</strong> and will receive all project notifications.
+                    </p>
+
+                    <!-- Credentials box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e8f0;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+                      <tr style="background:#f0f4fb;">
+                        <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#003366;border-bottom:1px solid #e0e8f0;width:40%;">Email / Username</td>
+                        <td style="padding:10px 16px;font-size:13px;color:#333;border-bottom:1px solid #e0e8f0;">${user.email}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#003366;border-bottom:1px solid #e0e8f0;background:#f0f4fb;">Default Password</td>
+                        <td style="padding:10px 16px;font-size:15px;color:#003366;font-weight:700;border-bottom:1px solid #e0e8f0;letter-spacing:1px;">${password}</td>
+                      </tr>
+                      <tr style="background:#f0f4fb;">
+                        <td style="padding:10px 16px;font-size:12px;font-weight:700;color:#003366;">Project</td>
+                        <td style="padding:10px 16px;font-size:13px;color:#333;">${project.title}</td>
+                      </tr>
+                    </table>
+
+                    <!-- Security warning -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                      <tr>
+                        <td style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 18px;">
+                          <p style="color:#7a5c00;font-size:12px;font-weight:700;margin:0 0 6px 0;">🔒 Security Recommendation:</p>
+                          <p style="color:#7a5c00;font-size:12px;margin:0;line-height:1.7;">
+                            We strongly recommend changing your password from the default immediately after logging in for the first time, to ensure the security of your account.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- CTA -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding:4px 0 20px 0;">
+                          <a href="${loginUrl}" style="background:linear-gradient(135deg,#003366,#0077cc);color:#ffffff;padding:14px 36px;text-decoration:none;border-radius:8px;font-size:15px;font-weight:700;display:inline-block;">
+                            Log In to SQRMT →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background:#f8f9fa;padding:18px 36px;border-top:1px solid #e0e0e0;text-align:center;">
+                    <p style="color:#999;font-size:11px;margin:0;">
+                      This is an automated message from SQRMT · DRDO Solid State Physics Laboratory<br/>
+                      New Delhi · Do not reply to this email
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+      `,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Admin-created account email sent: %s', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('Error sending admin-created account email:', error);
+    return false;
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendProjectPingEmail,
   sendReportSubmissionEmail,
   sendQualitySubmissionEmail,
+  sendAdminCreatedAccountEmail,
 };

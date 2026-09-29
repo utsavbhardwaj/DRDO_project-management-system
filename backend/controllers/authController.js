@@ -2,7 +2,7 @@ const prisma = require('../config/prisma');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/mailService');
+const { sendVerificationEmail, sendPasswordResetEmail, sendAdminCreatedAccountEmail } = require('../services/mailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', {
@@ -332,4 +332,75 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, authUser, getMembers, getAllUsers, deleteUser, verifyEmail, forgotPassword, resetPassword, resendVerification };
+/**
+ * Admin: Create Contributor Account
+ * POST /api/auth/admin-create-contributor
+ * Creates a verified Member account directly, assigns them to the given project,
+ * and sends a welcome email with the default password.
+ */
+const adminCreateContributor = async (req, res) => {
+  const { name, email, projectId } = req.body;
+  const DEFAULT_PASSWORD = 'sun123';
+
+  if (!name || !email || !projectId) {
+    return res.status(400).json({ message: 'name, email, and projectId are required' });
+  }
+
+  try {
+    // Check if user already exists
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ message: 'A user with this email already exists' });
+    }
+
+    // Also check pending registrations
+    const pending = await prisma.pendingRegistration.findUnique({ where: { email } });
+    if (pending) {
+      return res.status(400).json({ message: 'A pending registration exists for this email' });
+    }
+
+    // Fetch the project to validate it exists
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Hash default password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, salt);
+
+    // Create the user directly in User table (already verified)
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: 'Member',
+        isVerified: true,
+        assignedProjects: { connect: { id: projectId } },
+      },
+    });
+
+    console.log(`✅ Admin-created contributor: ${user.email} (id: ${user.id}) → project: ${project.title}`);
+
+    // Send welcome email (non-blocking — don't fail the request if it errors)
+    const emailSent = await sendAdminCreatedAccountEmail(
+      { name: user.name, email: user.email },
+      DEFAULT_PASSWORD,
+      { title: project.title }
+    );
+
+    console.log('Welcome email sent:', emailSent ? '✅ Yes' : '❌ No (check SMTP config)');
+
+    res.status(201).json({
+      message: `Contributor account created${emailSent ? ' and welcome email sent' : ' (email could not be sent — check SMTP config)'}`,
+      emailSent,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error('adminCreateContributor error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, authUser, getMembers, getAllUsers, deleteUser, verifyEmail, forgotPassword, resetPassword, resendVerification, adminCreateContributor };

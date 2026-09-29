@@ -23,6 +23,11 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
   const [pinging, setPinging] = useState(null);
   const [activePingMember, setActivePingMember] = useState(null);
   const [pingRemarks, setPingRemarks] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createMsg, setCreateMsg] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("sqrmt_token");
@@ -94,6 +99,33 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
         fetchProject(token);
       }
     } catch (e) {} finally { setAssigning(false); }
+  };
+
+  const handleCreateContributor = async (e) => {
+    e.preventDefault();
+    if (!newName.trim() || !newEmail.trim()) return;
+    setCreating(true);
+    setCreateMsg(null);
+    const token = getToken();
+    try {
+      const r = await fetch(`${API_BASE_URL}/api/auth/admin-create-contributor`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: newName.trim(), email: newEmail.trim(), projectId: id })
+      });
+      const data = await r.json();
+      if (r.ok) {
+        setCreateMsg({ type: "success", text: data.message });
+        setNewName("");
+        setNewEmail("");
+        fetchProject(token);
+        fetchMembers(token);
+      } else {
+        setCreateMsg({ type: "error", text: data.message || "Failed to create contributor" });
+      }
+    } catch (e) {
+      setCreateMsg({ type: "error", text: "Network error. Is the backend running?" });
+    } finally { setCreating(false); }
   };
 
   const handlePingMember = async () => {
@@ -301,6 +333,77 @@ export default function AdminProjectDetails({ params: paramsPromise }) {
                 <button onClick={handleAssignMembers} disabled={assigning} className="w-full mt-3 bg-[#2a5494] hover:bg-[#1e3f72] text-white text-sm font-semibold py-2 rounded-lg shadow disabled:opacity-50">
                   {assigning ? "Assigning..." : `Assign ${selectedMemberIds.length} Member(s)`}
                 </button>
+              )}
+            </div>
+
+            {/* Create New Contributor */}
+            <div className="border-t border-gray-200 pt-4 mt-2">
+              <button
+                onClick={() => { setShowCreateForm(v => !v); setCreateMsg(null); }}
+                className="w-full flex items-center justify-between text-xs font-bold text-[#2a5494] uppercase tracking-wide hover:text-[#1e3f72] transition-colors"
+              >
+                <span className="flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Create New Contributor
+                </span>
+                <span className="text-gray-400 text-base">{showCreateForm ? "▲" : "▼"}</span>
+              </button>
+
+              {showCreateForm && (
+                <form onSubmit={handleCreateContributor} className="mt-3 space-y-3">
+                  <p className="text-[11px] text-gray-500 leading-relaxed bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                    Creates a new contributor account with default password <strong>sun123</strong>, adds them to this project, and sends a welcome email.
+                  </p>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dr. R.K. Sharma"
+                      value={newName}
+                      onChange={e => setNewName(e.target.value)}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="e.g. scientist@sspl.drdo.in"
+                      value={newEmail}
+                      onChange={e => setNewEmail(e.target.value)}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  </div>
+
+                  {createMsg && (
+                    <div className={`text-xs rounded-lg px-3 py-2 font-medium ${
+                      createMsg.type === "success"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                    }`}>
+                      {createMsg.type === "success" ? "✅ " : "❌ "}{createMsg.text}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={creating || !newName.trim() || !newEmail.trim()}
+                    className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-semibold py-2 rounded-lg shadow transition-colors flex items-center justify-center gap-2"
+                  >
+                    {creating ? (
+                      <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>Creating &amp; Sending Email...</>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                        Create Contributor Account
+                      </>
+                    )}
+                  </button>
+                </form>
               )}
             </div>
           </div>
